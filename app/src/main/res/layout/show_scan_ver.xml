@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    tools:context=".ScanUrovo">
+
+    <TextView
+        android:id="@+id/tvScanVer"
+        android:layout_width="312dp"
+        android:layout_height="181dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text="..."
+        android:textAlignment="center"
+        android:textSize="25sp" />
+
+    <TextView
+        android:id="@+id/tvMark"
+        android:layout_width="wrap_content"
+        android:layout_height="145dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text=""
+        android:textSize="25sp" />
+
+
+    <Button
+        android:id="@+id/btnInitRFID"
+        android:layout_width="208dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:onClick="InitRFID"
+        android:text="Инициализация" />
+
+    <Button
+        android:id="@+id/btnStartScan"
+        android:layout_width="208dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:onClick="startScan"
+        android:text="Начать сканирование" />
+
+    <Button
+        android:id="@+id/scan_start_btn"
+        android:layout_width="208dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:shadowRadius="2"
+        android:text="Inventory" />
+
+    <Button
+        android:id="@+id/btnStopScan"
+        android:layout_width="208dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center_horizontal"
+        android:text="Закончить сканирование"
+        android:onClick="stopScan"/>
+
+
+
+</LinearLayout>
