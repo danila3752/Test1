@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements RequestHandler {
+public class MainActivity extends AppCompatActivity  {
     private MyServer server;
 
     @Override
@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity implements RequestHandler {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        server = new MyServer();
-        server.setRequestHandler(this);
+        server = new MyServer(this);
+
 
         // Запуск сервера
         try {
@@ -37,16 +37,5 @@ public class MainActivity extends AppCompatActivity implements RequestHandler {
         }
     }
 
-    // Реализация метода handleRequest()
-    @Override
-    public void handleRequest(String data) {
-        // Обработка полученных данных и переход в нужный layout
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Ваш код для перехода в нужный layout
-                setContentView(R.layout.show_scan_ver);
-            }
-        });
-    }
+
 }

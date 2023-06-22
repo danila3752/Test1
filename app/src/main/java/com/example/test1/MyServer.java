@@ -1,7 +1,7 @@
 package com.example.test1;
 
 import android.content.Context;
-import android.content.Intent;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -10,49 +10,50 @@ import java.util.Map;
 import fi.iki.elonen.NanoHTTPD;
 
 public class MyServer extends NanoHTTPD {
-    private RequestHandler requestHandler;
+    public ScanUrovo scanUrovo;
+    public Context context;
+    public RFIDReader rfidReader;
 
-    public MyServer() {
-        super(8080); // Устанавливаем порт, на котором будет работать сервер
+    public MyServer(Context context) {
+        super(8080);
+        // Инициализация объекта rfidReader
+        rfidReader = new RFIDReader(context);
+        this.context = context;
     }
 
-    public void setRequestHandler(RequestHandler requestHandler) {
-        this.requestHandler = requestHandler;
-    }
+    private Response tagResponse;
 
     @Override
     public Response serve(IHTTPSession session) {
         String uri = session.getUri();
-
         if ("/api/data".equals(uri)) {
             if (Method.GET.equals(session.getMethod())) {
                 // Обработка GET-запроса на эндпоинт '/api/data'
+                RFIDReadCallback readCallback = new RFIDReadCallback() {
+                    @Override
+                    public void onTagRead(String tagData, ResponseCallback responseCallback) {
+                        // Отправляем ответ после чтения метки
+                        tagResponse = newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, tagData);
+                    }
+                };
 
-                String responseData = "Data retrieved successfully";
-                return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, responseData);
+                rfidReader.readTags(readCallback, new ResponseCallback() {
+                    @Override
+                    public void onResponse(Response response) {
+                        // Сохраняем ответ для последующего возврата
+                        tagResponse = response;
+                    }
+                });
+
+                // Возвращаем временный ответ с сообщением "Reading RFID tag..."
+              //  return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "Reading RFID tag...");
             } else if (Method.POST.equals(session.getMethod())) {
                 // Обработка POST-запроса на эндпоинт '/api/data'
-                try {
-                    Map<String, String> files = new HashMap<>();
-                    session.parseBody(files);
-                    String requestData = session.getQueryParameterString();
-                    // Обработка данных
-                    String responseData = "Data processed successfully";
-
-                    if (requestHandler != null) {
-                        requestHandler.handleRequest(responseData);
-                    }
-
-                    return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, responseData);
-                } catch (IOException | ResponseException e) {
-                    e.printStackTrace();
-                    return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Internal Server Error");
-                }
+                // Ваш код обработки POST-запроса
             }
         }
 
-        return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not Found");
+        // Возвращаем сохраненный ответ или ответ "Not Found" по умолчанию
+        return tagResponse != null ? tagResponse : newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not Found");
     }
-
-    
 }

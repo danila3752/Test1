@@ -19,7 +19,7 @@ public class MyServerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        server = new MyServer();
+        server = new MyServer(getApplicationContext());
         try {
             server.start();
         } catch (IOException e) {
