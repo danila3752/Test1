@@ -1,6 +1,7 @@
 package com.example.test1;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class MyServer extends NanoHTTPD {
         rfidReader = new RFIDReader(context);
         this.context = context;
     }
-
+    private String tagData;
     private Response tagResponse;
 
     @Override
@@ -28,22 +29,36 @@ public class MyServer extends NanoHTTPD {
         String uri = session.getUri();
         if ("/api/data".equals(uri)) {
             if (Method.GET.equals(session.getMethod())) {
-                // Обработка GET-запроса на эндпоинт '/api/data'
-                RFIDReadCallback readCallback = new RFIDReadCallback() {
-                    @Override
-                    public void onTagRead(String tagData, ResponseCallback responseCallback) {
-                        // Отправляем ответ после чтения метки
-                        tagResponse = newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, tagData);
-                    }
-                };
+                try {
+                    tagData = rfidReader.readTags();
+                } catch (InterruptedException e) {
+                    Log.e("error", e.getMessage());
+                }
+                if (tagData != null) {
+                    // Возвращаем ответ с данными метки RFID
+                    return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, tagData);
+                } else {
+                    // Возвращаем ответ с сообщением об ошибке
+                    return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error reading RFID tag");
+                }
 
-                rfidReader.readTags(readCallback, new ResponseCallback() {
-                    @Override
-                    public void onResponse(Response response) {
-                        // Сохраняем ответ для последующего возврата
-                        tagResponse = response;
-                    }
-                });
+
+                // Обработка GET-запроса на эндпоинт '/api/data'
+//                RFIDReadCallback readCallback = new RFIDReadCallback() {
+//                    @Override
+//                    public void onTagRead(String tagData, ResponseCallback responseCallback) {
+//                        // Отправляем ответ после чтения метки
+//                        tagResponse = newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, tagData);
+//                    }
+//                };
+
+//                rfidReader.readTags(readCallback, new ResponseCallback() {
+//                    @Override
+//                    public void onResponse(Response response) {
+//                        // Сохраняем ответ для последующего возврата
+//                        tagResponse = response;
+//                    }
+//                });
 
                 // Возвращаем временный ответ с сообщением "Reading RFID tag..."
               //  return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "Reading RFID tag...");

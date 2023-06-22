@@ -100,7 +100,7 @@ public class ScanUrovo {
 //                        @Override
 //                        public void run() {
                             //Toast.makeText(сurContext,"RFID ON",Toast.LENGTH_LONG).show();
-                    ReadOneTagUrovo(сurContext);
+                 //   ReadOneTagUrovo(сurContext);
                     Log.i("info", "RFID ON");
 //                            //Toast.makeText(сurContext,"module："+readerType,Toast.LENGTH_LONG).show();
 //                        }
@@ -117,17 +117,18 @@ public class ScanUrovo {
     }
 
 
-    void ReadOneTagUrovo(Context сurContext) {
+    String ReadOneTagUrovo(Context сurContext) {
         if (mRfidManager == null) {
             Log.e("error", "mRfidManager is null");
-            return;
+            return "error";
         }
         if (mRfidManager.isConnected()==false) {
             Log.e("error", "mRfidManager is not connected");
-            return;
+            return "error";
         }
+        String epc = "";
         try {
-            String epc = mRfidManager.readTagOnce( (byte) 0, (byte) 0);
+            epc = mRfidManager.readTagOnce( (byte) 0, (byte) 0);
             if (epc!=null) {
                 //Toast.makeText(getApplicationContext(), "Обнаружена метка: " + epc, Toast.LENGTH_LONG).show();
                 Log.i("info", "Обнаружена метка: " + epc);
@@ -151,6 +152,6 @@ public class ScanUrovo {
             Log.e("error", e.getMessage());
         }
 
-//return epc;
+return epc;
     }
 }
