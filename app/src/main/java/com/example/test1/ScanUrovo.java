@@ -44,9 +44,8 @@ public class ScanUrovo {
     public List<TagScan> tagScanSpinner;
     //private List<Fragment> fragments ;
     private List<TagScan> data;
-
     private int tagTotal = 0;
-
+    public List<String> epcList ;
     public RfidManager mRfidManager;
     public int readerType = 0;
     private ScanCallback callback  ;
@@ -54,7 +53,7 @@ public class ScanUrovo {
 
     private boolean booleanbBackScan;
     private boolean blSingleScan;                       //Параметр сканирования одной метки
-
+    public Context context;
     private Bundle savedBundle;
     private Button scanStartBtn; //,btnStartL,btnConnect,btnDisConnect;
 
@@ -99,8 +98,8 @@ public class ScanUrovo {
 //                    runOnUiThread(new Runnable() {
 //                        @Override
 //                        public void run() {
-                            //Toast.makeText(сurContext,"RFID ON",Toast.LENGTH_LONG).show();
-                 //   ReadOneTagUrovo(сurContext);
+                    //Toast.makeText(сurContext,"RFID ON",Toast.LENGTH_LONG).show();
+                    //   ReadOneTagUrovo(сurContext);
                     Log.i("info", "RFID ON");
 //                            //Toast.makeText(сurContext,"module："+readerType,Toast.LENGTH_LONG).show();
 //                        }
@@ -130,28 +129,77 @@ public class ScanUrovo {
         try {
             epc = mRfidManager.readTagOnce( (byte) 0, (byte) 0);
             if (epc!=null) {
-                //Toast.makeText(getApplicationContext(), "Обнаружена метка: " + epc, Toast.LENGTH_LONG).show();
-                Log.i("info", "Обнаружена метка: " + epc);
                 SoundTool.getInstance(сurContext).playBeep(1);
-
                 mCount = 1;
                 mMarks[mCount] = epc;
-             //   sendMessage1С("", epc);
-
-//            Intent intent = new Intent();
-//            intent.putExtra("RFID", epc);
-//            setResult( RESULT_OK, intent);
             }
             else {
-             //   tvRes.setText("No tag data...");
+                //   tvRes.setText("No tag data...");
                 SoundTool.getInstance(сurContext).playBeep(2);
                 Log.i("info", "No tag data...");
             }
         } catch (Exception e) {
-          //  tvRes.setText("Error read RFID UROVO...");
+            //  tvRes.setText("Error read RFID UROVO...");
             Log.e("error", e.getMessage());
         }
 
-return epc;
+        return epc;
     }
+
+    public List<String> ReadInventory(Context curContext,boolean isRead){
+        if(isRead) {
+            epcList = new ArrayList<>(); // Создаем список для хранения EPC мето
+            context = curContext;
+            setCallback();
+            tagTotal = 0;
+            Log.v(TAG, "--- startInventory()   ----");
+            mRfidManager.startInventory((byte) 0);
+        }else {
+            mRfidManager.stopInventory();
+            return epcList;
+        }
+        return epcList;
+    }
+
+
+    private void notiyDatas(final String epc, final String TID, final String strRSSI){
+        String mapContainStr = null;
+
+        SoundTool.getInstance(context).playBeep(1);
+        Log.i("info", "Обнаружена метка: " + epc);
+        mCount = 1;
+        mMarks[mCount] = epc;
+        epcList.add(epc);
+        Log.i("TAG", "epcList: " + epcList);
+    }
+    class ScanCallback implements IRfidCallback  {
+
+        @Override
+        public void onInventoryTag(String EPC, final String TID, final String strRSSI) {
+
+            notiyDatas(EPC,TID,strRSSI);
+
+        }
+
+        @Override
+        public void onInventoryTagEnd()  {
+            Log.d(TAG, "onInventoryTag()");
+        }
+    }
+
+    public List<String> setCallback(){
+        if (mRfidManager!=null) {
+
+            if (callback == null){
+                callback = new ScanCallback();
+            }
+            mRfidManager.registerCallback(callback);
+        }
+        return epcList;
+    }
+
+
 }
+
+
+
